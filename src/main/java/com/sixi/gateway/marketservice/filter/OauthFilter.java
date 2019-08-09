@@ -63,10 +63,11 @@ public class OauthFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         URI uri = exchange.getRequest().getURI();
         URI ex = UriComponentsBuilder.fromUri(uri).build(true).toUri();
-        ServerHttpRequest request = exchange.getRequest().mutate().uri(ex).build();
+        ServerHttpRequest serverHttpRequest = exchange.getRequest();
+        ServerHttpRequest request = serverHttpRequest.mutate().uri(ex).build();
         // 判断是否为POST请求
-        if (REQUEST_TYPE.equalsIgnoreCase(request.getMethodValue())) {
-            Flux<DataBuffer> body = request.getBody();
+        if (REQUEST_TYPE.equalsIgnoreCase(serverHttpRequest.getMethodValue())) {
+            Flux<DataBuffer> body = serverHttpRequest.getBody();
             // 缓存读取的request body信息
             AtomicReference<String> bodyRef = new AtomicReference<>();
             body.subscribe(dataBuffer -> {
@@ -83,7 +84,7 @@ public class OauthFilter implements GlobalFilter, Ordered {
                 //将信息转换为authMessage对象
                 authMessage = readMessage(updateStr);
                 //是否有必要参数
-//                authMessage.requireParameters(SimpleAuthValidator.SINGLE_PARAMETERS);
+//              authMessage.requireParameters(SimpleAuthValidator.SINGLE_PARAMETERS);
 
                 AuthConsumer authConsumer = AuthConsumer.builder().key("app84508210140155904")
                         .secret("MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAIuR34tq2mnIsIMfT83/xT8ljtIC3wHHFVIe/5DxamxGSJfkKgj5WFv3qXvTuoegQdjaAmmJEl/SwDPJdsGEqUvZwxBd+R0m4v1Gps3O8Er7a1pbuWsa/Yl+HCk2u2SMnqHvjoAYjgnsTE2MpMDZkG7LE7mSsjXbmEJUUGvTupDlAgMBAAECgYAzzagAcl+xJdlGQef4GPgYURNqpcAqQ7+JJJJNNR4AJDIrlnd3rzz5nbodiN/SGUx3dauxijv0rx/B2QQoHdpMDO00nyYS73/7ZXeMs/Wv1m6OSnLxssve0PY/SHDxbFJ8duZcHOpQnT4LxLR6wZyZ9msZ21YBBCWooe77J9EUnQJBANGT1PTiwXn15dXjG2rDApxl607gSKjJiQTYEtBfS/5aJ8HIqA+RNXEW+2BL+bpZe9FkgWL8vSh1OMlsbAek7kMCQQCqfDtFG8RCK4Wc9LdwAzAveA4kzHZArlazKJ3sMWlQtnIPhIqYcsd1AKslo+pYZizrzWvABy1jKB9tMg5P6FW3AkB8oGh255EeMXfnZRIcvrKCxqjTUtRiatYsJ0Go38KVEo+p0OT/vN4Gzh/V99gdVLEop5e5gYoK0Qpf3TWwpgd5AkB+dmTo4K32f54/TW/9EQBfVej39wsI88mwYEK0//olOxDk3eaJKys1aWeLJkohhLlxuRFignByi0K0l1ryf1+FAkB6xfpMonXZZH3IGTOduPay4TqY2YAUCPRlwYjP0wTu38S+NPx4Q7LxYWuvlASt9pxCG2ihhF0ukV9XynijEnt/").build();
@@ -125,19 +126,20 @@ public class OauthFilter implements GlobalFilter, Ordered {
                 e.printStackTrace();
             }
             //下面的将请求体再次封装写回到request里，传到下一级，否则，由于请求体已被消费，后续的服务将取不到值
-            ServerHttpRequest request1 = request.mutate().uri(url).build();
+            ServerHttpRequest request1 = serverHttpRequest.mutate().uri(url).build();
             DataBuffer bodyDataBuffer = stringBuffer(biz_content);
             Flux<DataBuffer> bodyFlux = Flux.just(bodyDataBuffer);
             //封装新的request
-            request = new ServerHttpRequestDecorator(request1) {
+            request1 = new ServerHttpRequestDecorator(request1) {
                 @Override
                 public Flux<DataBuffer> getBody() {
                     return bodyFlux;
                 }
             };
+        return chain.filter(exchange.mutate().request(request1).build());
         }
         //封装request，传给下一级
-        return chain.filter(exchange.mutate().request(request).build());
+        return chain.filter(exchange);
     }
 
 
@@ -151,7 +153,7 @@ public class OauthFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return -999;
+        return 0;
     }
 
     /**
