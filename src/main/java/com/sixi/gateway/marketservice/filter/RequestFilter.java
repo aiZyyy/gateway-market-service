@@ -23,13 +23,11 @@ public class RequestFilter implements GatewayFilter, Ordered {
         Object requestBody = exchange.getAttribute("cachedRequestBodyObject");
         log.info("request body is:{}", requestBody);
 
-        return chain.filter(exchange).then(Mono.fromRunnable(() -> {
-            System.out.println("RequestFilter post filter");
-        }));
+        return chain.filter(exchange).then(Mono.fromRunnable(() -> System.out.println("RequestFilter post filter")));
     }
 
     @Override
     public int getOrder() {
-        return -5;
+        return 1;
     }
 }
