@@ -1,41 +1,19 @@
 package com.sixi.gateway.marketservice;
 
-import com.sixi.gateway.marketservice.filter.CustomGlobalFilter;
-import com.sixi.micro.common.annotation.SixiMicroServiceApplication;
 import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.Bean;
+import org.springframework.cloud.client.SpringCloudApplication;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Created with IntelliJ IDEA
  *
  * @author MiaoWoo
  */
-@SixiMicroServiceApplication
+@RestController
+@SpringCloudApplication
 public class GatewayMarketServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(GatewayMarketServiceApplication.class, args);
     }
 
-//    @Bean
-//    public RouteLocator myRoutes(RouteLocatorBuilder builder) {
-//        String httpUri = "http://httpbin.org:80";
-//        return builder.routes()
-//                .route(p -> p
-//                        .path("/get")
-//                        .filters(f -> f.addRequestHeader("Hello", "World"))
-//                        .uri("http://httpbin.org:80"))
-//                .route(p -> p
-//                        .host("*.hystrix.com")
-//                        .filters(f -> f
-//                                .hystrix(config -> config
-//                                        .setName("mycmd")
-//                                        .setFallbackUri("forward:/fallback")))
-//                        .uri(httpUri))
-//                .build();
-//    }
-
-    @Bean
-    public CustomGlobalFilter authSignatureFilter() {
-        return new CustomGlobalFilter();
-    }
 }
