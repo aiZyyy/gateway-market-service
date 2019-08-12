@@ -87,36 +87,24 @@ public class RequestFilter implements GatewayFilter, Ordered {
                 response.setStatusCode(HttpStatus.BAD_REQUEST);
                 return response.setComplete();
             }
-
-            String updateStr = bodyStr.replaceAll("\n\t", "");
-            System.out.println(bodyStr);
+            String updateStr = Arrays.stream(org.springframework.util.StringUtils.tokenizeToStringArray(bodyStr, "\n\t")).collect(Collectors.joining(""));
+            System.out.println(updateStr);
             AuthMessage authMessage = null;
             try {
                 //将信息转换为authMessage对象
                 authMessage = readMessage(updateStr);
-                //是否有必要参数
-//              authMessage.requireParameters(SimpleAuthValidator.SINGLE_PARAMETERS);
-
-                AuthConsumer authConsumer = AuthConsumer.builder().key("app84508210140155904")
-                        .secret("MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAIuR34tq2mnIsIMfT83/xT8ljtIC3wHHFVIe/5DxamxGSJfkKgj5WFv3qXvTuoegQdjaAmmJEl/SwDPJdsGEqUvZwxBd+R0m4v1Gps3O8Er7a1pbuWsa/Yl+HCk2u2SMnqHvjoAYjgnsTE2MpMDZkG7LE7mSsjXbmEJUUGvTupDlAgMBAAECgYAzzagAcl+xJdlGQef4GPgYURNqpcAqQ7+JJJJNNR4AJDIrlnd3rzz5nbodiN/SGUx3dauxijv0rx/B2QQoHdpMDO00nyYS73/7ZXeMs/Wv1m6OSnLxssve0PY/SHDxbFJ8duZcHOpQnT4LxLR6wZyZ9msZ21YBBCWooe77J9EUnQJBANGT1PTiwXn15dXjG2rDApxl607gSKjJiQTYEtBfS/5aJ8HIqA+RNXEW+2BL+bpZe9FkgWL8vSh1OMlsbAek7kMCQQCqfDtFG8RCK4Wc9LdwAzAveA4kzHZArlazKJ3sMWlQtnIPhIqYcsd1AKslo+pYZizrzWvABy1jKB9tMg5P6FW3AkB8oGh255EeMXfnZRIcvrKCxqjTUtRiatYsJ0Go38KVEo+p0OT/vN4Gzh/V99gdVLEop5e5gYoK0Qpf3TWwpgd5AkB+dmTo4K32f54/TW/9EQBfVej39wsI88mwYEK0//olOxDk3eaJKys1aWeLJkohhLlxuRFignByi0K0l1ryf1+FAkB6xfpMonXZZH3IGTOduPay4TqY2YAUCPRlwYjP0wTu38S+NPx4Q7LxYWuvlASt9pxCG2ihhF0ukV9XynijEnt/").build();
-
-                long timeMillis = System.currentTimeMillis();
-                System.out.println(timeMillis / 1000L);
-                authMessage.addParameter("timestamp", String.valueOf(timeMillis / 1000L));
-                //获取签名
-                String signature = SignerBuilder.newSigner(authMessage).getSignature(authMessage, authConsumer);
-
                 //获取appId
                 String appId = authMessage.getParameter(OAUTH_APP_ID_NAME);
                 //获取应用公钥
                 String publicKey = redisTemplate.opsForValue().get(KEY + appId);
+                //是否有必要参数
+                authMessage.requireParameters(SimpleAuthValidator.SINGLE_PARAMETERS);
                 //封装验证类
-                AuthConsumer authConsumer1 = AuthConsumer.builder().key(appId).secret(publicKey).build();
-                //构造验证类
-                SimpleAuthValidator simpleAuthValidator = new SimpleAuthValidator(30 * 60 * 100);
-                authMessage.addParameter("sign", signature);
+                AuthConsumer authConsumer = AuthConsumer.builder().key(authMessage.getParameter("app_id"))
+                        .secret(publicKey).build();
+                SimpleAuthValidator simpleAuthValidator = new SimpleAuthValidator(SimpleAuthValidator.DEFAULT_MAX_TIMESTAMP_AGE);
                 //验证签名
-                simpleAuthValidator.validateMessage(authMessage, authConsumer1);
+                simpleAuthValidator.validateMessage(authMessage, authConsumer);
                 System.out.println("验签成功");
             } catch (AuthException e) {
                 logger.error("验签失败");
@@ -127,12 +115,10 @@ public class RequestFilter implements GatewayFilter, Ordered {
             }
 
             //获取请求参数
-            String biz_content = authMessage.getParameter("biz_content").replaceAll("/t", "");
+            String biz_content = Arrays.stream(org.springframework.util.StringUtils.tokenizeToStringArray(authMessage.getParameter("biz_content"), "\n\t")).collect(Collectors.joining(""));
             //获取方法路径
-            String method = authMessage.getParameter("method").replaceAll("\\.", "/");
-
+            String newPath = "/" + Arrays.stream(org.springframework.util.StringUtils.tokenizeToStringArray(authMessage.getParameter("method"), "\\.")).collect(Collectors.joining("/"));
             //下面的将请求体再次封装写回到request里，传到下一级，否则，由于请求体已被消费，后续的服务将取不到值
-            String newPath = "/" + Arrays.stream(org.springframework.util.StringUtils.tokenizeToStringArray(method, "/")).collect(Collectors.joining("/"));
             ServerHttpRequest request = exchangeRequest.mutate().path(newPath).build();
             DataBuffer bodyDataBuffer = stringBuffer(biz_content);
             Flux<DataBuffer> bodyFlux = Flux.just(bodyDataBuffer);
