@@ -85,8 +85,7 @@ public class RequestFilter implements GatewayFilter, Ordered {
                 response.setStatusCode(HttpStatus.BAD_REQUEST);
                 return response.setComplete();
             }
-            String updateStr = Arrays.stream(org.springframework.util.StringUtils.tokenizeToStringArray(bodyStr, "\n\t")).collect(Collectors.joining(""));
-            System.out.println(updateStr);
+            String updateStr = Arrays.stream(org.springframework.util.StringUtils.tokenizeToStringArray(bodyStr, "\n\t [ ]")).collect(Collectors.joining(""));
             AuthMessage authMessage = null;
             try {
                 //将信息转换为authMessage对象
@@ -102,7 +101,7 @@ public class RequestFilter implements GatewayFilter, Ordered {
                 SimpleAuthValidator simpleAuthValidator = new SimpleAuthValidator(SimpleAuthValidator.DEFAULT_MAX_TIMESTAMP_AGE);
                 //验证签名
                 simpleAuthValidator.validateMessage(authMessage, authConsumer);
-                System.out.println("验签成功");
+                logger.info("验签成功,进入下一步转发");
             } catch (AuthException e) {
                 logger.error("验签失败");
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
