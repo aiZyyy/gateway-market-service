@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author MiaoWoo
  */
-@RestController
 @SpringCloudApplication
-@ComponentScan("com.sixi")
 public class GatewayMarketServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(GatewayMarketServiceApplication.class, args);
