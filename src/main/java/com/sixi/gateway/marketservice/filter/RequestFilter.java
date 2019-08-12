@@ -49,7 +49,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RequestFilter implements GatewayFilter, Ordered {
 
-
     static final String KEY = "MARKET:";
 
     static final String OAUTH_APP_ID_NAME = "app_id";
@@ -63,7 +62,6 @@ public class RequestFilter implements GatewayFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-
         Object requestBody = exchange.getAttribute("cachedRequestBodyObject");
         log.info("request body is:{}", requestBody);
         ServerHttpRequest exchangeRequest = exchange.getRequest();
@@ -100,8 +98,7 @@ public class RequestFilter implements GatewayFilter, Ordered {
                 //是否有必要参数
                 authMessage.requireParameters(SimpleAuthValidator.SINGLE_PARAMETERS);
                 //封装验证类
-                AuthConsumer authConsumer = AuthConsumer.builder().key(authMessage.getParameter("app_id"))
-                        .secret(publicKey).build();
+                AuthConsumer authConsumer = AuthConsumer.builder().key(appId).secret(publicKey).build();
                 SimpleAuthValidator simpleAuthValidator = new SimpleAuthValidator(SimpleAuthValidator.DEFAULT_MAX_TIMESTAMP_AGE);
                 //验证签名
                 simpleAuthValidator.validateMessage(authMessage, authConsumer);
@@ -164,8 +161,13 @@ public class RequestFilter implements GatewayFilter, Ordered {
         return chain.filter(exchange);
     }
 
-
-    protected DataBuffer stringBuffer(String value) {
+    /**
+     * 转换消息格式
+     *
+     * @param value
+     * @return
+     */
+    private DataBuffer stringBuffer(String value) {
         byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
         NettyDataBufferFactory nettyDataBufferFactory = new NettyDataBufferFactory(ByteBufAllocator.DEFAULT);
         DataBuffer buffer = nettyDataBufferFactory.allocateBuffer(bytes.length);
