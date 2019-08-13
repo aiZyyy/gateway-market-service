@@ -18,9 +18,9 @@ import org.springframework.http.MediaType;
  * @Version 1.0
  * @Description:
  */
-@EnableAutoConfiguration
-@Configuration
 @Slf4j
+@Configuration
+@EnableAutoConfiguration
 public class ApiLocator {
     @Autowired
     private RequestFilter requestFilter;
@@ -30,7 +30,6 @@ public class ApiLocator {
 
     @Bean
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
-
         /*
         route1 是get请求，get请求使用readBody会报错
         route2 是post请求，Content-Type是application/x-www-form-urlencoded，readbody为String.class

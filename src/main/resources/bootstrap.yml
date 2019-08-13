@@ -13,32 +13,32 @@ spring.cloud.config.uri: ${SPRING_CLOUD_CONFIG_URI:http://localhost:8083}
 
 spring.main.allow-bean-definition-overriding: true
 
-spring:
-  cloud:
-    gateway:
-      # 代表默认的过滤器，这是一个全局的过滤器，不属于任何一个route
-      default-filters:
-      # 表示注册中心生效，我们可以通过注册中心的服务名进行路由转发
-      discovery:
-        locator:
-          enabled: true
-      routes:
-      # 表示路由的唯一id
-      - id: base-staff-service
-        # 指向注册中心的服务，使用lb:// 加上ServiceName
-        uri: lb://base-staff-service
-        # 表示要进行的断言(谓语判断)
-        predicates:
-        # 表示path地址，根据url，以auth开头的会被转发到auth-service服务，需要注意的是后面/**和/*的区别
-        - Path= /staff/**
-        # 过滤器
-        filters:
-        # 从前面截取一个，实际上就是截取url
-        - StripPrefix=1
-        # 这是个自定义的过滤器(只需写自定义服务器的前缀就好)
-        #        - Auth=false
-        # 重试
-        - name: Retry
-          args:
-            retries: 3
-            statuses: BAD_GATEWAY
+#spring:
+#  cloud:
+#    gateway:
+#      # 代表默认的过滤器，这是一个全局的过滤器，不属于任何一个route
+#      default-filters:
+#      # 表示注册中心生效，我们可以通过注册中心的服务名进行路由转发
+#      discovery:
+#        locator:
+#          enabled: true
+#      routes:
+#      # 表示路由的唯一id
+#      - id: staff_route
+#        # 指向注册中心的服务，使用lb:// 加上ServiceName
+#        uri: lb://base-staff-service
+#        # 表示要进行的断言(谓语判断)
+#        predicates:
+#        # 表示path地址，根据url，以auth开头的会被转发到auth-service服务，需要注意的是后面/**和/*的区别
+#        - Path= /staff/**
+#        # 过滤器
+#        filters:
+#        # 从前面截取一个，实际上就是截取url
+#        - StripPrefix=1
+#        # 这是个自定义的过滤器(只需写自定义服务器的前缀就好)
+#        #        - Auth=false
+#        # 重试
+#        - name: Retry
+#          args:
+#            retries: 3
+#            statuses: BAD_GATEWAY

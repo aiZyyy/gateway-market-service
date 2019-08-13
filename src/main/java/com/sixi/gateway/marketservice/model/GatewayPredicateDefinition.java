@@ -1,5 +1,10 @@
 package com.sixi.gateway.marketservice.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -9,6 +14,10 @@ import java.util.Map;
  * @Version 1.0
  * @Description: 路由断言定义模型
  */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GatewayPredicateDefinition {
 
     /**
@@ -21,19 +30,4 @@ public class GatewayPredicateDefinition {
      */
     private Map<String, String> args = new LinkedHashMap<>();
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Map<String, String> getArgs() {
-        return args;
-    }
-
-    public void setArgs(Map<String, String> args) {
-        this.args = args;
-    }
 }
