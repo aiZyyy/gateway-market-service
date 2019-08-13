@@ -40,7 +40,7 @@ public class RouteController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "succss";
+        return "success";
     }
 
     @GetMapping("/delete/{id}")

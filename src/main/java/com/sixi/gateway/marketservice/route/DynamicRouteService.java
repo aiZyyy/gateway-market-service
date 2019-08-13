@@ -24,6 +24,14 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
 
     private ApplicationEventPublisher publisher;
 
+
+    /**
+     * 刷新路由信息
+     */
+    private void notifyChanged(){
+        this.publisher.publishEvent(new RefreshRoutesEvent(this));
+    }
+
     /**
      * 增加路由
      *
