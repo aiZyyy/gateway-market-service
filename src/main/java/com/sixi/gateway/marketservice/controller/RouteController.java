@@ -24,11 +24,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/route")
 public class RouteController {
+
     @Autowired
     private DynamicRouteService dynamicRouteService;
 
     /**
      * 增加路由
+     *
      * @param gatewayRouteDefinition
      * @return
      */
@@ -56,6 +58,7 @@ public class RouteController {
 
     /**
      * 转换为RouteDefinition类型
+     *
      * @param gatewayRouteDefinition
      * @return
      */
@@ -68,7 +71,7 @@ public class RouteController {
 
         // Predicates
         List<PredicateDefinition> pdList = new ArrayList<>();
-        for (GatewayPredicateDefinition gpDefinition: gatewayRouteDefinition.getPredicates()) {
+        for (GatewayPredicateDefinition gpDefinition : gatewayRouteDefinition.getPredicates()) {
             PredicateDefinition predicate = new PredicateDefinition();
             predicate.setArgs(gpDefinition.getArgs());
             predicate.setName(gpDefinition.getName());
@@ -78,7 +81,7 @@ public class RouteController {
 
         // Filters
         List<FilterDefinition> fdList = new ArrayList<>();
-        for (GatewayFilterDefinition gfDefinition: gatewayRouteDefinition.getFilters()) {
+        for (GatewayFilterDefinition gfDefinition : gatewayRouteDefinition.getFilters()) {
             FilterDefinition filter = new FilterDefinition();
             filter.setArgs(gfDefinition.getArgs());
             filter.setName(gfDefinition.getName());
