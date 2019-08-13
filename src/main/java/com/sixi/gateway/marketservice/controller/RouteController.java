@@ -49,21 +49,26 @@ public class RouteController {
     }
 
     @PostMapping("/update")
-    public String update(@RequestBody GatewayRouteDefinition gwdefinition) {
-        RouteDefinition definition = assembleRouteDefinition(gwdefinition);
+    public String update(@RequestBody GatewayRouteDefinition gatewayRouteDefinition) {
+        RouteDefinition definition = assembleRouteDefinition(gatewayRouteDefinition);
         return this.dynamicRouteService.update(definition);
     }
 
-    private RouteDefinition assembleRouteDefinition(GatewayRouteDefinition gwdefinition) {
+    /**
+     * 转换为RouteDefinition类型
+     * @param gatewayRouteDefinition
+     * @return
+     */
+    private RouteDefinition assembleRouteDefinition(GatewayRouteDefinition gatewayRouteDefinition) {
 
         RouteDefinition definition = new RouteDefinition();
 
         // ID
-        definition.setId(gwdefinition.getId());
+        definition.setId(gatewayRouteDefinition.getId());
 
         // Predicates
         List<PredicateDefinition> pdList = new ArrayList<>();
-        for (GatewayPredicateDefinition gpDefinition: gwdefinition.getPredicates()) {
+        for (GatewayPredicateDefinition gpDefinition: gatewayRouteDefinition.getPredicates()) {
             PredicateDefinition predicate = new PredicateDefinition();
             predicate.setArgs(gpDefinition.getArgs());
             predicate.setName(gpDefinition.getName());
@@ -73,7 +78,7 @@ public class RouteController {
 
         // Filters
         List<FilterDefinition> fdList = new ArrayList<>();
-        for (GatewayFilterDefinition gfDefinition: gwdefinition.getFilters()) {
+        for (GatewayFilterDefinition gfDefinition: gatewayRouteDefinition.getFilters()) {
             FilterDefinition filter = new FilterDefinition();
             filter.setArgs(gfDefinition.getArgs());
             filter.setName(gfDefinition.getName());
@@ -82,7 +87,7 @@ public class RouteController {
         definition.setFilters(fdList);
 
         // URI
-        URI uri = UriComponentsBuilder.fromUriString(gwdefinition.getUri()).build().toUri();
+        URI uri = UriComponentsBuilder.fromUriString(gatewayRouteDefinition.getUri()).build().toUri();
         definition.setUri(uri);
 
         return definition;
