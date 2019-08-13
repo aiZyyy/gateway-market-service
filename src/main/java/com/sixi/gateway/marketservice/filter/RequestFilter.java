@@ -2,7 +2,6 @@ package com.sixi.gateway.marketservice.filter;
 
 import com.sixi.gateway.checksigncommon.oauth.Auth;
 import com.sixi.gateway.checksigncommon.oauth.AuthMessage;
-import com.sixi.gateway.checksigncommon.oauth.SignerBuilder;
 import com.sixi.gateway.checksigncommon.oauth.domain.AuthConsumer;
 import com.sixi.gateway.checksigncommon.oauth.exception.AuthException;
 import com.sixi.gateway.checksigncommon.oauth.exception.AuthProblemException;
@@ -62,6 +61,7 @@ public class RequestFilter implements GatewayFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        ServerHttpResponse response = exchange.getResponse();
         Object requestBody = exchange.getAttribute("cachedRequestBodyObject");
         log.info("request body is:{}", requestBody);
         ServerHttpRequest exchangeRequest = exchange.getRequest();
@@ -81,12 +81,11 @@ public class RequestFilter implements GatewayFilter, Ordered {
             // 这种处理方式，必须保证post请求时，原始post表单必须有数据过来，不然会报错
             if (StringUtils.isBlank(bodyStr)) {
                 logger.error("请求异常：{} POST请求必须传递参数", exchangeRequest.getURI().getRawPath());
-                ServerHttpResponse response = exchange.getResponse();
                 response.setStatusCode(HttpStatus.BAD_REQUEST);
                 return response.setComplete();
             }
             String updateStr = Arrays.stream(org.springframework.util.StringUtils.tokenizeToStringArray(bodyStr, "\n\t [ ]")).collect(Collectors.joining(""));
-            AuthMessage authMessage = null;
+            AuthMessage authMessage;
             try {
                 //将信息转换为authMessage对象
                 authMessage = readMessage(updateStr);
@@ -102,13 +101,16 @@ public class RequestFilter implements GatewayFilter, Ordered {
                 //验证签名
                 simpleAuthValidator.validateMessage(authMessage, authConsumer);
                 logger.info("验签成功,进入下一步转发");
-            } catch (AuthException e) {
-                logger.error("验签失败");
-                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                return exchange.getResponse().setComplete();
+            } catch (AuthProblemException e) {
+                log.error("验签失败");
+                //授权失败，不对其进行路由
+                return Mono.error(e);
             } catch (IOException e) {
-                e.printStackTrace();
+                return Mono.error(e);
+            } catch (AuthException e) {
+                return Mono.error(e);
             }
+
 
             //获取请求参数
             String biz_content = Arrays.stream(org.springframework.util.StringUtils.tokenizeToStringArray(authMessage.getParameter("biz_content"), "\n\t")).collect(Collectors.joining(""));
@@ -197,6 +199,6 @@ public class RequestFilter implements GatewayFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return 0;
+        return 1;
     }
 }
