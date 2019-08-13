@@ -43,6 +43,6 @@ public class GatewayRouteDefinition {
     /**
      * 路由执行的顺序
      */
-    private int order = -1;
+    private int order = 0;
 
 }
