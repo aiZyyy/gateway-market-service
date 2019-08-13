@@ -1,13 +1,17 @@
 package com.sixi.gateway.marketservice.route;
 
+import com.alibaba.fastjson.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
 import org.springframework.cloud.gateway.route.RouteDefinition;
 import org.springframework.cloud.gateway.route.RouteDefinitionWriter;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import static com.sixi.gateway.marketservice.repository.UnifiedRouteRepository.GATEWAY_ROUTES;
 
 /**
  * @Author: ZY
@@ -24,11 +28,13 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
 
     private ApplicationEventPublisher publisher;
 
+    @Autowired
+    StringRedisTemplate redisTemplate;
 
     /**
      * 刷新路由信息
      */
-    private void notifyChanged(){
+    private void notifyChanged() {
         this.publisher.publishEvent(new RefreshRoutesEvent(this));
     }
 
@@ -39,8 +45,11 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
      * @return
      */
     public String add(RouteDefinition definition) {
+        //放入内存
         routeDefinitionWriter.save(Mono.just(definition)).subscribe();
-        this.publisher.publishEvent(new RefreshRoutesEvent(this));
+        //存入redis
+        redisTemplate.opsForHash().put(GATEWAY_ROUTES, definition.getId(), JSON.toJSONString(definition));
+        notifyChanged();
         return "success";
     }
 
@@ -53,16 +62,17 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
     public String update(RouteDefinition definition) {
         try {
             this.routeDefinitionWriter.delete(Mono.just(definition.getId()));
+            //删除redis信息
+            redisTemplate.opsForHash().delete(definition.getId());
         } catch (Exception e) {
             return "update fail,not find route  routeId: " + definition.getId();
         }
         try {
-            routeDefinitionWriter.save(Mono.just(definition)).subscribe();
-            this.publisher.publishEvent(new RefreshRoutesEvent(this));
-            return "success";
+            add(definition);
         } catch (Exception e) {
             return "update route fail";
         }
+        return null;
     }
 
     /**
@@ -73,8 +83,10 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
      */
     public String delete(String id) {
         try {
-            Mono<String> routeId = Mono.just(id);
-            this.routeDefinitionWriter.delete(routeId);
+            this.routeDefinitionWriter.delete(Mono.just(id));
+            //删除redis信息
+            redisTemplate.opsForHash().delete(GATEWAY_ROUTES,id);
+            notifyChanged();
             return "delete success";
         } catch (Exception e) {
             e.printStackTrace();
