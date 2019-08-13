@@ -2,6 +2,7 @@ package com.sixi.gateway.marketservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.cloud.client.SpringCloudApplication;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author MiaoWoo
  */
-@RestController
 @SpringCloudApplication
 public class GatewayMarketServiceApplication {
     public static void main(String[] args) {
