@@ -1,5 +1,4 @@
-package com.sixi.gateway.marketservice.model;
-
+package com.sixi.gateway.marketservice.domain.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,23 +10,23 @@ import java.util.Map;
 
 /**
  * @Author: ZY
- * @Date: 2019/8/12 18:18
+ * @Date: 2019/8/12 18:19
  * @Version 1.0
- * @Description: 过滤器定义模型
+ * @Description: 路由断言定义模型
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GatewayFilterDefinition {
+public class GatewayPredicateDefinition {
 
     /**
-     * Filter Name
+     * 断言对应的Name
      */
     private String name;
 
     /**
-     * 对应的路由规则
+     * 配置的断言规则
      */
     private Map<String, String> args = new LinkedHashMap<>();
 
