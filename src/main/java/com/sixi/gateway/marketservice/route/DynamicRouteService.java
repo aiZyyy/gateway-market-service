@@ -1,15 +1,26 @@
 package com.sixi.gateway.marketservice.route;
 
 import com.alibaba.fastjson.JSON;
+import com.sixi.gateway.marketservice.domain.form.RouteAddForm;
+import com.sixi.gateway.marketservice.domain.form.RouteDelForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
+import org.springframework.cloud.gateway.filter.FilterDefinition;
+import org.springframework.cloud.gateway.handler.predicate.PredicateDefinition;
 import org.springframework.cloud.gateway.route.RouteDefinition;
 import org.springframework.cloud.gateway.route.RouteDefinitionWriter;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.sixi.gateway.marketservice.repository.UnifiedRouteRepository.GATEWAY_ROUTES;
 
@@ -41,10 +52,11 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
     /**
      * 增加路由
      *
-     * @param definition
+     * @param routeAddForm
      * @return
      */
-    public String add(RouteDefinition definition) {
+    public String add(RouteAddForm routeAddForm) {
+        RouteDefinition definition = assembleRouteDefinition(routeAddForm);
         //放入内存
         routeDefinitionWriter.save(Mono.just(definition)).subscribe();
         //存入redis
@@ -56,36 +68,36 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
     /**
      * 更新路由
      *
-     * @param definition
+     * @param routeAddForm
      * @return
      */
-    public String update(RouteDefinition definition) {
+    public String update(RouteAddForm routeAddForm) {
         try {
-            this.routeDefinitionWriter.delete(Mono.just(definition.getId()));
+            this.routeDefinitionWriter.delete(Mono.just(routeAddForm.getRouteId()));
             //删除redis信息
-            redisTemplate.opsForHash().delete(definition.getId());
+            redisTemplate.opsForHash().delete(GATEWAY_ROUTES, routeAddForm.getRouteId());
         } catch (Exception e) {
-            return "update fail,not find route  routeId: " + definition.getId();
+            return "update fail,not find route  routeId: " + routeAddForm.getRouteId();
         }
         try {
-            add(definition);
+            add(routeAddForm);
         } catch (Exception e) {
             return "update route fail";
         }
-        return null;
+        return "update success";
     }
 
     /**
      * 删除路由
      *
-     * @param id
+     * @param routeDelForm
      * @return
      */
-    public String delete(String id) {
+    public String delete(RouteDelForm routeDelForm) {
         try {
-            this.routeDefinitionWriter.delete(Mono.just(id));
+            this.routeDefinitionWriter.delete(Mono.just(routeDelForm.getRouteId()));
             //删除redis信息
-            redisTemplate.opsForHash().delete(GATEWAY_ROUTES,id);
+            redisTemplate.opsForHash().delete(GATEWAY_ROUTES, routeDelForm.getRouteId());
             notifyChanged();
             return "delete success";
         } catch (Exception e) {
@@ -100,5 +112,47 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
         this.publisher = applicationEventPublisher;
     }
 
+    /**
+     * 转换为RouteDefinition类型
+     *
+     * @param routeAddForm
+     * @return
+     */
+    private RouteDefinition assembleRouteDefinition(RouteAddForm routeAddForm) {
+        String path = routeAddForm.getPath();
+
+        RouteDefinition definition = new RouteDefinition();
+
+        // ID
+        definition.setId(routeAddForm.getRouteId());
+
+        // Predicates
+        List<PredicateDefinition> pdList = new ArrayList<>();
+        PredicateDefinition predicate = new PredicateDefinition();
+        Map<String, String> pArgs = new LinkedHashMap<>();
+        pArgs.put("pattern", "/" + path + "/**");
+        predicate.setArgs(pArgs);
+        predicate.setName("Path");
+        pdList.add(predicate);
+        definition.setPredicates(pdList);
+
+        // Filters
+        List<FilterDefinition> fdList = new ArrayList<>();
+        FilterDefinition filter = new FilterDefinition();
+        Map<String, String> fArgs = new LinkedHashMap<>();
+        fArgs.put("regexp", "/" + path + "/(?<remaining>.*)");
+        fArgs.put("replacement", "/${remaining}");
+        filter.setArgs(fArgs);
+        filter.setName("RewritePath");
+        fdList.add(filter);
+
+        definition.setFilters(fdList);
+
+        // URI
+        URI uri = UriComponentsBuilder.fromUriString(routeAddForm.getUri()).build().toUri();
+        definition.setUri(uri);
+
+        return definition;
+    }
 
 }
