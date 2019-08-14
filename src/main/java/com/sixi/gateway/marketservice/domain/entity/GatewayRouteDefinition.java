@@ -1,4 +1,4 @@
-package com.sixi.gateway.marketservice.model;
+package com.sixi.gateway.marketservice.domain.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
