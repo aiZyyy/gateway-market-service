@@ -11,6 +11,7 @@ import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -29,9 +30,12 @@ public class ApiLocator {
     @Autowired
     private RequestFilter requestFilter;
 
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
     private static final String SERVICE = "/gateway.do";
 
-    public final String URI = "https://api.test.sixi.com/gateway-market-service";
+    public final String URI = redisTemplate.opsForValue().get(SERVICE) + "/gateway-market-service";
 
     @Bean
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
