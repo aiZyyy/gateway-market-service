@@ -31,7 +31,7 @@ public class ApiLocator {
 
     private static final String SERVICE = "/gateway.do";
 
-    public final String URI = "api.test.sixi.com/gateway-market-service";
+    public final String URI = "https://api.test.sixi.com/gateway-market-service";
 
     @Bean
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
