@@ -9,6 +9,7 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -33,6 +34,7 @@ public class ApiLocator {
     public final String URI = gatewayConfig.getUrl() + "/gateway-market-service";
 
     @Bean
+    @Order(-1000)
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
         /*
         route1 是get请求，get请求使用readBody会报错
