@@ -16,5 +16,5 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "gateway")
 public class GatewayConfig {
-    private String url;
+    public String url;
 }

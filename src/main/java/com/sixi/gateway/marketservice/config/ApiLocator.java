@@ -31,7 +31,7 @@ public class ApiLocator {
 
     private static final String SERVICE = "/gateway.do";
 
-    private String URI = gatewayConfig.getUrl() + "/gateway-market-service";
+    public final String URI = gatewayConfig.getUrl() + "/gateway-market-service";
 
     @Bean
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
