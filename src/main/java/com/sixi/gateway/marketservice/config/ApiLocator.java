@@ -33,9 +33,11 @@ public class ApiLocator {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
+    private static final String key = "gateway:/gateway.do";
+
     private static final String SERVICE = "/gateway.do";
 
-    public final String URI = redisTemplate.opsForValue().get(SERVICE) + "/gateway-market-service";
+    public final String URI = redisTemplate.opsForValue().get(key) + "/gateway-market-service";
 
     @Bean
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
