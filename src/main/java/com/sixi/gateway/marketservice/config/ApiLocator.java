@@ -26,13 +26,12 @@ public class ApiLocator {
 
     @Autowired
     private RequestFilter requestFilter;
+    @Autowired
+    private GatewayConfig gatewayConfig;
 
     private static final String SERVICE = "/gateway.do";
 
-    @Value("${SIXI_GATEWAY_MARKET_SERVICE_IP}")
-    private String URL;
-
-    private String URI = URL+"/gateway-market-service";
+    private String URI = gatewayConfig.getUrl() + "/gateway-market-service";
 
     @Bean
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
