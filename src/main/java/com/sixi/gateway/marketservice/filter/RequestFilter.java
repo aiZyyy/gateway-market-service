@@ -6,8 +6,8 @@ import com.sixi.gateway.checksigncommon.oauth.domain.AuthConsumer;
 import com.sixi.gateway.checksigncommon.oauth.exception.AuthException;
 import com.sixi.gateway.checksigncommon.oauth.exception.AuthProblemException;
 import com.sixi.gateway.checksigncommon.oauth.json.SingleJSON;
+import com.sixi.gateway.checksigncommon.oauth.method.impl.SimpleAuthNonces;
 import com.sixi.gateway.checksigncommon.oauth.method.impl.SimpleAuthValidator;
-import com.sixi.gateway.marketservice.kits.RedisDistributedKit;
 import io.netty.buffer.ByteBufAllocator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -55,16 +55,16 @@ public class RequestFilter implements GatewayFilter, Ordered {
 
     static final String OAUTH_SIGN = "sign";
 
-    static final String STORE_ID = "SignCheck:";
+//    static final String STORE_ID = "SignCheck:";
 
     @Autowired
     RedisTemplate<String, String> redisTemplate;
 
-    private RedisDistributedKit redisDistributedKit;
-
-    public RequestFilter(RedisDistributedKit redisDistributedKit) {
-        this.redisDistributedKit = redisDistributedKit;
-    }
+//    private RedisDistributedKit redisDistributedKit;
+//
+//    public RequestFilter(RedisDistributedKit redisDistributedKit) {
+//        this.redisDistributedKit = redisDistributedKit;
+//    }
 
     Logger logger = LoggerFactory.getLogger(RequestFilter.class);
 
@@ -123,7 +123,6 @@ public class RequestFilter implements GatewayFilter, Ordered {
      * @return
      */
     private ServerHttpRequest transferRequest(ServerHttpRequest exchangeRequest, String contentType, String bodyStr, AuthMessage authMessage) {
-       /// String URI = redisTemplate.opsForValue().get(key) + "/gateway-market-service";
         //获取请求参数
         String biz_content = Arrays.stream(org.springframework.util.StringUtils.tokenizeToStringArray(authMessage.getParameter("biz_content"), "\n\t")).collect(Collectors.joining(""));
         //获取方法路径
@@ -185,15 +184,16 @@ public class RequestFilter implements GatewayFilter, Ordered {
         //获取应用公钥
         String publicKey = redisTemplate.opsForValue().get(KEY + appId);
         //获取分布式锁
-        String token = redisDistributedKit.acquire(sign, STORE_ID, 5000, 4000);
+//        String token = redisDistributedKit.acquire(sign, STORE_ID, 5000, 4000);
         //是否有必要参数
         authMessage.requireParameters(SimpleAuthValidator.SINGLE_PARAMETERS);
         //封装验证类
         AuthConsumer authConsumer = AuthConsumer.builder().key(appId).secret(publicKey).build();
-        SimpleAuthValidator simpleAuthValidator = new SimpleAuthValidator(SimpleAuthValidator.DEFAULT_MAX_TIMESTAMP_AGE);
+        SimpleAuthNonces simpleAuthNonces = new SimpleAuthNonces(60000L);
+        SimpleAuthValidator simpleAuthValidator = new SimpleAuthValidator(simpleAuthNonces,1*60*1000);
         //验证签名
         simpleAuthValidator.validateMessage(authMessage, authConsumer);
-        redisDistributedKit.release(sign, STORE_ID, token);
+//        redisDistributedKit.release(sign, STORE_ID, token);
     }
 
 
