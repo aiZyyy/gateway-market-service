@@ -20,7 +20,6 @@ import org.springframework.http.MediaType;
  * @Description:
  */
 @Slf4j
-@Configuration
 @EnableAutoConfiguration
 public class ApiLocator {
 
