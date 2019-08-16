@@ -3,6 +3,7 @@ package com.sixi.gateway.marketservice.config;
 import com.sixi.gateway.marketservice.filter.RequestFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
@@ -26,7 +27,9 @@ public class ApiLocator {
     private RequestFilter requestFilter;
 
     private static final String SERVICE = "/gateway.do";
-    private static final String URI = "http://127.0.0.1:8085";
+
+    @Value("${SIXI_GATEWAY_MARKET_SERVICE_IP}")
+    private String URI;
 
     @Bean
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
