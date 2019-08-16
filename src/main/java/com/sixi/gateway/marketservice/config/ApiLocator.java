@@ -22,20 +22,18 @@ import org.springframework.http.MediaType;
  * @Description:
  */
 @Slf4j
+@Configuration
 @EnableAutoConfiguration
 public class ApiLocator {
 
     @Autowired
     private RequestFilter requestFilter;
-    @Autowired
-    private GatewayConfig gatewayConfig;
 
     private static final String SERVICE = "/gateway.do";
 
-    public final String URI = gatewayConfig.getUrl() + "/gateway-market-service";
+    public final String URI = "api.test.sixi.com/gateway-market-service";
 
     @Bean
-    @Before("requestFilter")
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
         /*
         route1 是get请求，get请求使用readBody会报错
