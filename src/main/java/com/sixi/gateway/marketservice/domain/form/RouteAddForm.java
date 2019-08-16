@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * @Author: ZY
@@ -36,4 +37,10 @@ public class RouteAddForm {
      */
     @NotBlank(message = "映射路径不能为空")
     private String uri;
+
+    /**
+     * 指向路径地址类型,0为外部地址,1为注册中心地址
+     */
+    @NotNull(message = "指向路径地址不能为空,0为外部地址,1为注册中心地址")
+    private Integer type;
 }

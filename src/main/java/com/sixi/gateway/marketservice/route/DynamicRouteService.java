@@ -34,10 +34,10 @@ import static com.sixi.gateway.marketservice.repository.UnifiedRouteRepository.G
 @Service
 public class DynamicRouteService implements ApplicationEventPublisherAware {
 
+    private ApplicationEventPublisher publisher;
+
     @Autowired
     private RouteDefinitionWriter routeDefinitionWriter;
-
-    private ApplicationEventPublisher publisher;
 
     @Autowired
     StringRedisTemplate redisTemplate;
@@ -148,8 +148,17 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
 
         definition.setFilters(fdList);
 
+        String url;
+        //判断uri是否为注册中心服务
+        if (1 == routeAddForm.getType()) {
+            //为注册中心服务
+            url = "lb://" + routeAddForm.getUri();
+        } else {
+            url = "https://" + routeAddForm.getUri();
+        }
+
         // URI
-        URI uri = UriComponentsBuilder.fromUriString(routeAddForm.getUri()).build().toUri();
+        URI uri = UriComponentsBuilder.fromUriString(url).build().toUri();
         definition.setUri(uri);
 
         return definition;
