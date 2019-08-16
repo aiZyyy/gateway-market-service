@@ -37,10 +37,9 @@ public class ApiLocator {
 
     private static final String SERVICE = "/gateway.do";
 
-    public final String URI = redisTemplate.opsForValue().get(key) + "/gateway-market-service";
-
     @Bean
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
+        String URI = redisTemplate.opsForValue().get(key) + "/gateway-market-service";
         /*
         route1 是get请求，get请求使用readBody会报错
         route2 是post请求，Content-Type是application/x-www-form-urlencoded，readbody为String.class
