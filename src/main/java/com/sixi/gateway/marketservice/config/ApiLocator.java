@@ -2,16 +2,12 @@ package com.sixi.gateway.marketservice.config;
 
 import com.sixi.gateway.marketservice.filter.RequestFilter;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -30,16 +26,12 @@ public class ApiLocator {
     @Autowired
     private RequestFilter requestFilter;
 
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
-
-    private static final String key = "gateway:/gateway.do";
-
     private static final String SERVICE = "/gateway.do";
+
+    String URI = "http://gateway:8085";
 
     @Bean
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
-        String URI = redisTemplate.opsForValue().get(key) + "/gateway-market-service";
         /*
         route1 是get请求，get请求使用readBody会报错
         route2 是post请求，Content-Type是application/x-www-form-urlencoded，readbody为String.class

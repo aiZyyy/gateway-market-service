@@ -123,6 +123,7 @@ public class RequestFilter implements GatewayFilter, Ordered {
      * @return
      */
     private ServerHttpRequest transferRequest(ServerHttpRequest exchangeRequest, String contentType, String bodyStr, AuthMessage authMessage) {
+       /// String URI = redisTemplate.opsForValue().get(key) + "/gateway-market-service";
         //获取请求参数
         String biz_content = Arrays.stream(org.springframework.util.StringUtils.tokenizeToStringArray(authMessage.getParameter("biz_content"), "\n\t")).collect(Collectors.joining(""));
         //获取方法路径
