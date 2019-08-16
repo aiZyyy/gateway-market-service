@@ -23,13 +23,16 @@ import org.springframework.http.MediaType;
 @Configuration
 @EnableAutoConfiguration
 public class ApiLocator {
+
     @Autowired
     private RequestFilter requestFilter;
 
     private static final String SERVICE = "/gateway.do";
 
     @Value("${SIXI_GATEWAY_MARKET_SERVICE_IP}")
-    private String URI;
+    private String URL;
+
+    private String URI = URL+"/gateway-market-service";
 
     @Bean
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
