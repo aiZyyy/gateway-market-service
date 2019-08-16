@@ -2,6 +2,7 @@ package com.sixi.gateway.marketservice.config;
 
 import com.sixi.gateway.marketservice.filter.RequestFilter;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -34,7 +35,7 @@ public class ApiLocator {
     public final String URI = gatewayConfig.getUrl() + "/gateway-market-service";
 
     @Bean
-    @Order(-1000)
+    @Before("requestFilter")
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
         /*
         route1 是get请求，get请求使用readBody会报错
