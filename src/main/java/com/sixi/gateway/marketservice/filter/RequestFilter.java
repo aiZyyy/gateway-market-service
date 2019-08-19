@@ -119,6 +119,9 @@ public class RequestFilter implements GatewayFilter, Ordered {
     private ServerHttpRequest transferRequest(ServerHttpRequest exchangeRequest, String contentType, String bodyStr, AuthMessage authMessage) {
         //获取请求参数
         String biz_content = Arrays.stream(org.springframework.util.StringUtils.tokenizeToStringArray(authMessage.getParameter("biz_content"), "\n\t")).collect(Collectors.joining(""));
+        if (StringUtils.isEmpty(biz_content)){
+            biz_content=" ";
+        }
         //获取方法路径
         String newPath = "/" + Arrays.stream(org.springframework.util.StringUtils.tokenizeToStringArray(authMessage.getParameter("method"), "\\.")).collect(Collectors.joining("/"));
         //下面的将请求体再次封装写回到request里，传到下一级，否则，由于请求体已被消费，后续的服务将取不到值
