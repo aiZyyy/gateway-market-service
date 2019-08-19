@@ -6,7 +6,7 @@ import com.sixi.gateway.checksigncommon.oauth.domain.AuthConsumer;
 import com.sixi.gateway.checksigncommon.oauth.exception.AuthException;
 import com.sixi.gateway.checksigncommon.oauth.exception.AuthProblemException;
 import com.sixi.gateway.checksigncommon.oauth.json.SingleJSON;
-import com.sixi.gateway.checksigncommon.oauth.method.impl.SimpleAuthNonces;
+import com.sixi.gateway.checksigncommon.oauth.method.impl.RedisAuthNonces;
 import com.sixi.gateway.checksigncommon.oauth.method.impl.SimpleAuthValidator;
 import io.netty.buffer.ByteBufAllocator;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +39,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static com.sixi.gateway.checksigncommon.oauth.method.impl.SimpleAuthNonces.DEFAULT_MAX_TIMESTAMP_AGE;
+
 /**
  * @Author: ZY
  * @Date: 2019/8/9 15:59
@@ -55,16 +57,8 @@ public class RequestFilter implements GatewayFilter, Ordered {
 
     static final String OAUTH_SIGN = "sign";
 
-//    static final String STORE_ID = "SignCheck:";
-
     @Autowired
     RedisTemplate<String, String> redisTemplate;
-
-//    private RedisDistributedKit redisDistributedKit;
-//
-//    public RequestFilter(RedisDistributedKit redisDistributedKit) {
-//        this.redisDistributedKit = redisDistributedKit;
-//    }
 
     Logger logger = LoggerFactory.getLogger(RequestFilter.class);
 
@@ -177,23 +171,20 @@ public class RequestFilter implements GatewayFilter, Ordered {
      * @throws InterruptedException
      */
     private void checkSign(AuthMessage authMessage) throws InterruptedException {
-        //获取签名
-        String sign = authMessage.getParameter(OAUTH_SIGN);
         //获取appId
         String appId = authMessage.getParameter(OAUTH_APP_ID_NAME);
         //获取应用公钥
         String publicKey = redisTemplate.opsForValue().get(KEY + appId);
-        //获取分布式锁
-//        String token = redisDistributedKit.acquire(sign, STORE_ID, 5000, 4000);
         //是否有必要参数
         authMessage.requireParameters(SimpleAuthValidator.SINGLE_PARAMETERS);
-        //封装验证类
+        //封装AuthConsumer
         AuthConsumer authConsumer = AuthConsumer.builder().key(appId).secret(publicKey).build();
-        SimpleAuthNonces simpleAuthNonces = new SimpleAuthNonces(60000L);
-        SimpleAuthValidator simpleAuthValidator = new SimpleAuthValidator(simpleAuthNonces,1*60*1000);
+        //封装redis防重类
+        RedisAuthNonces redisAuthNonces = new RedisAuthNonces();
+        //封装验证类
+        SimpleAuthValidator simpleAuthValidator = new SimpleAuthValidator(redisAuthNonces,DEFAULT_MAX_TIMESTAMP_AGE);
         //验证签名
-        simpleAuthValidator.validateMessage(authMessage, authConsumer);
-//        redisDistributedKit.release(sign, STORE_ID, token);
+        simpleAuthValidator.validateMessage(authMessage, authConsumer,redisTemplate);
     }
 
 
