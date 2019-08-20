@@ -19,14 +19,16 @@ import org.springframework.http.MediaType;
  * @Description:
  */
 @Slf4j
-@Configuration
 @EnableAutoConfiguration
+@Configuration
 public class ApiLocator {
+
     @Autowired
     private RequestFilter requestFilter;
 
     private static final String SERVICE = "/gateway.do";
-    private static final String URI = "http://127.0.0.1:8085";
+
+    String URI = "http://gateway:8085";
 
     @Bean
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
