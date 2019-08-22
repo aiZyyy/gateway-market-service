@@ -35,7 +35,8 @@ public class ApiLocator {
                                     System.err.println(o.toUpperCase());
                                     log.info(o);
                                     return Mono.just(o);
-                                })).uri(URI));
+                                })).uri(URI)
+                        .order(0));
         RouteLocator routeLocator = serviceProviders.build();
         log.info("custom RouteLocator is loading ... {}", routeLocator);
         return routeLocator;
