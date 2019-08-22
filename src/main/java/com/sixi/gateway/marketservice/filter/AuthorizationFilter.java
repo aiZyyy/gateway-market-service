@@ -6,8 +6,6 @@ import com.sixi.gateway.checksigncommon.oauth.exception.AuthProblemException;
 import com.sixi.gateway.checksigncommon.oauth.json.SingleJSON;
 import com.sixi.gateway.marketservice.security.CheckSignServices;
 import com.sixi.gateway.marketservice.security.EncapsulationServices;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -52,7 +50,6 @@ public class AuthorizationFilter implements GlobalFilter, Ordered {
         ServerHttpRequest req = checkSignServices.doCheckSign(serverHttpRequest, authMessage);
         //获取请求类型
         String contentType = serverHttpRequest.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
-
         //封装新的请求
         ServerHttpRequest request = encapsulationServices.encapsulationRequest(req, contentType, authMessage);
         //转发新需求
@@ -93,10 +90,10 @@ public class AuthorizationFilter implements GlobalFilter, Ordered {
      */
     private AuthMessage readMessage(String str) throws AuthProblemException {
 
-        Object paser = SingleJSON.paser(str);
+        Object obj = SingleJSON.paser(str);
 
-        if (paser instanceof Map) {
-            return new AuthMessage(((Map<String, ?>) paser).entrySet());
+        if (obj instanceof Map) {
+            return new AuthMessage(((Map<String, ?>) obj).entrySet());
         } else {
             AuthProblemException problem = new AuthProblemException(Auth.Problems.PARAMETER_ABSENT);
             problem.setParameter(Auth.Problems.OAUTH_PARAMETERS_ABSENT, Auth.OAUTH_SIGNATURE);
@@ -106,6 +103,6 @@ public class AuthorizationFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return -200;
+        return 1;
     }
 }
