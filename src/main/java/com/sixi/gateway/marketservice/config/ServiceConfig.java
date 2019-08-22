@@ -7,9 +7,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * @Author: ZY
@@ -22,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 public class ServiceConfig {
 
     @Bean
+    @Order(1)
     public AuthorizationFilter authorizationFilter(CheckSignServices checkSignServices, EncapsulationServices encapsulationServices) {
         return new AuthorizationFilter(checkSignServices, encapsulationServices);
     }
