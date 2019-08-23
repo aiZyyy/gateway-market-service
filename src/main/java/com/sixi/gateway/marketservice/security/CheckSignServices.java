@@ -10,7 +10,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import reactor.core.publisher.Mono;
 
 import static com.sixi.gateway.checksigncommon.oauth.method.impl.SimpleAuthNonces.DEFAULT_MAX_TIMESTAMP_AGE;
 
@@ -42,10 +41,10 @@ public class CheckSignServices {
         } catch (AuthProblemException e) {
             //授权失败，不对其进行路由
             logger.error("Failed to CheckSign", e);
-            return (ServerHttpRequest) e;
+            return req.mutate().contextPath(e.getMessage()).build();
         } catch (AuthException e) {
             logger.error("Failed to CheckSign", e);
-            return (ServerHttpRequest) e;
+            return req.mutate().contextPath(e.getMessage()).build();
         }
         return req;
     }
