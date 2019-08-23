@@ -20,11 +20,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 @EnableConfigurationProperties
 public class ServiceConfig {
 
-//    @Bean
-//    @Order(1)
-//    public IgnoreGlobalFilter ignoreGlobalFilter() {
-//        return new IgnoreGlobalFilter();
-//    }
 
     @Bean
     @Order(1)

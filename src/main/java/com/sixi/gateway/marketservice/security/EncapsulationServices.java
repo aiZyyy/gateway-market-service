@@ -11,7 +11,6 @@ import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import reactor.core.publisher.Flux;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -23,9 +22,7 @@ import java.util.stream.Collectors;
  */
 public class EncapsulationServices {
 
-    public final static String ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER = "ignoreGlobalFilter";
 
-    public final static String SIXI_SERVICE = "sixiserviceignore";
 
     /**
      * 转发新请求
@@ -50,10 +47,10 @@ public class EncapsulationServices {
 
         // 定义新的消息头
         HttpHeaders headers = new HttpHeaders();
-        //添加过滤条件
-        ArrayList<String> arr = new ArrayList<>();
-        arr.add(SIXI_SERVICE);
-        headers.put(ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER,arr);
+//        //添加过滤条件
+//        ArrayList<String> arr = new ArrayList<>();
+//        arr.add(SIXI_SERVICE);
+//        headers.put(ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER,arr);
         headers.putAll(exchangeRequest.getHeaders());
 
         // 由于修改了传递参数，需要重新设置CONTENT_LENGTH，长度是字节长度，不是字符串长度

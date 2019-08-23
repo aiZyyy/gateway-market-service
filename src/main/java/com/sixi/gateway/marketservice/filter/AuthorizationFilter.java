@@ -12,12 +12,6 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.function.Predicate;
-
-import static com.sixi.gateway.marketservice.security.EncapsulationServices.ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER;
-import static com.sixi.gateway.marketservice.security.EncapsulationServices.SIXI_SERVICE;
-
 /**
  * @Author: ZY
  * @Date: 2019/8/22 10:49
@@ -25,6 +19,10 @@ import static com.sixi.gateway.marketservice.security.EncapsulationServices.SIXI
  * @Description: 全局过滤器
  */
 public class AuthorizationFilter implements GlobalFilter, Ordered {
+
+    public final static String ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER = "@ignoreGlobalFilter";
+
+    public final static String SIXI_SERVICE = "sixiignoreservice";
 
 
     private final CheckSignServices checkSignServices;
@@ -45,7 +43,7 @@ public class AuthorizationFilter implements GlobalFilter, Ordered {
         ServerHttpRequest serverHttpRequest = exchange.getRequest();
         //获取请求头信息
         HttpHeaders headers = serverHttpRequest.getHeaders();
-        if ((null != headers.get(ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER).get(0)) && SIXI_SERVICE.equals(headers.get(ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER).get(0))) {
+        if (headers.containsKey(ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER) && headers.get(ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER).get(0).equals(SIXI_SERVICE)) {
             return chain.filter(exchange);
         }
 
@@ -57,7 +55,7 @@ public class AuthorizationFilter implements GlobalFilter, Ordered {
         String contentType = serverHttpRequest.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
         //封装新的请求
         ServerHttpRequest request = encapsulationServices.encapsulationRequest(req, contentType, authMessage);
-        ServerHttpRequest build = request.mutate().header("@ignoreGlobalFilter", ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER).build();
+        ServerHttpRequest build = request.mutate().header(ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER, SIXI_SERVICE).build();
         //封装新的exchange
         ServerWebExchange webExchange = exchange.mutate().request(build).build();
         //转发新需求

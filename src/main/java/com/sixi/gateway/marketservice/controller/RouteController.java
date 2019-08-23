@@ -4,7 +4,6 @@ import com.sixi.gateway.marketservice.domain.form.RouteAddForm;
 import com.sixi.gateway.marketservice.domain.form.RouteDelForm;
 import com.sixi.gateway.marketservice.route.DynamicRouteService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
