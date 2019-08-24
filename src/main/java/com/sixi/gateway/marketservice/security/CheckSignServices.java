@@ -14,7 +14,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 
-import static com.sixi.gateway.checksigncommon.oauth.method.impl.SimpleAuthNonces.DEFAULT_MAX_TIMESTAMP_AGE;
+import static com.sixi.gateway.checksigncommon.oauth.method.impl.SimpleAuthValidator.DEFAULT_TIMESTAMP_AGE;
 
 /**
  * @Author: ZY
@@ -68,7 +68,7 @@ public class CheckSignServices {
         //封装redis防重类
         RedisAuthNonces redisAuthNonces = new RedisAuthNonces();
         //封装验证类
-        SimpleAuthValidator simpleAuthValidator = new SimpleAuthValidator(redisAuthNonces, DEFAULT_MAX_TIMESTAMP_AGE);
+        SimpleAuthValidator simpleAuthValidator = new SimpleAuthValidator(redisAuthNonces, DEFAULT_TIMESTAMP_AGE);
         //验证签名
         simpleAuthValidator.validateMessage(authMessage, authConsumer, stringRedisTemplate);
     }
