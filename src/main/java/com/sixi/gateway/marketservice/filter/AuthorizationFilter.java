@@ -20,9 +20,9 @@ import reactor.core.publisher.Mono;
  */
 public class AuthorizationFilter implements GlobalFilter, Ordered {
 
-    public final static String ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER = "ignoreGlobalFilter";
+    public final static String ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER = "ignore********";
 
-    public final static String SIXI_SERVICE = "sixiignoreservice";
+    public final static String SIXI_SERVICE = "=============";
 
 
     private final CheckSignServices checkSignServices;
