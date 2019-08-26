@@ -1,6 +1,9 @@
 package com.sixi.gateway.marketservice.filter;
 
 import com.sixi.gateway.checksigncommon.oauth.AuthMessage;
+import com.sixi.gateway.marketservice.constant.AuthConast;
+import com.sixi.gateway.marketservice.exception.ErrorCode;
+import com.sixi.gateway.marketservice.exception.ServerException;
 import com.sixi.gateway.marketservice.security.AuthBodyServices;
 import com.sixi.gateway.marketservice.security.CheckSignServices;
 import com.sixi.gateway.marketservice.security.EncapsulationServices;
@@ -8,6 +11,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -53,13 +57,19 @@ public class AuthorizationFilter implements GlobalFilter, Ordered {
         ServerHttpRequest req = checkSignServices.doCheckSign(serverHttpRequest, authMessage);
         //获取请求类型
         String contentType = serverHttpRequest.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
-        //封装新的请求
-        ServerHttpRequest request = encapsulationServices.encapsulationRequest(req, contentType, authMessage);
-        ServerHttpRequest build = request.mutate().header(ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER, SIXI_SERVICE).build();
-        //封装新的exchange
-        ServerWebExchange webExchange = exchange.mutate().request(build).build();
-        //转发新需求
-        return chain.filter(webExchange);
+        ServerWebExchange webExchange;
+        try {
+            //封装新的请求
+            ServerHttpRequest request = encapsulationServices.encapsulationRequest(req, contentType, authMessage);
+            ServerHttpRequest build = request.mutate().header(ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER, SIXI_SERVICE).build();
+            //封装新的exchange
+            webExchange = exchange.mutate().request(build).build();
+            //转发新需求
+            return chain.filter(webExchange);
+        } catch (Exception e) {
+            ErrorCode errorCode = new ErrorCode(AuthConast.RESP_CD_INVALID_PATH, AuthConast.RESP_MSG_INVALID_PATH, "pls check your path!");
+            throw new ServerException(HttpStatus.BAD_REQUEST, errorCode);
+        }
     }
 
     @Override

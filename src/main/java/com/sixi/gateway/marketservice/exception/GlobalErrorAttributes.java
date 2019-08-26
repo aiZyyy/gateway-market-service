@@ -34,6 +34,7 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
         if (error instanceof ServerException) {
             errorAttributes.put("code", ((ServerException) error).getCode().getCode());
             errorAttributes.put("data", error.getMessage());
+            errorAttributes.put("detailMessage",((ServerException) error).getDetailMessage());
 
         } else {
             errorAttributes.put("code", HttpStatus.INTERNAL_SERVER_ERROR);

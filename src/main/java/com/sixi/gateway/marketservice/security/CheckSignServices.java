@@ -44,7 +44,7 @@ public class CheckSignServices {
         } catch (AuthProblemException e) {
             //授权失败，不对其进行路由
             logger.error("Failed to CheckSign", e);
-            ErrorCode errorCode = new ErrorCode(AuthConast.RESP_CD_INVALID_SIGNATURE, e.getProblem(), "pls check your sign!");
+            ErrorCode errorCode = new ErrorCode(AuthConast.RESP_CD_INVALID_SIGNATURE, e.getProblem(), "pls check your timestamp or sign!");
             throw new ServerException(HttpStatus.BAD_REQUEST, errorCode);
         }
         return req;
@@ -61,8 +61,6 @@ public class CheckSignServices {
         String appId = authMessage.getParameter(OAUTH_APP_ID_NAME);
         //获取应用公钥
         String publicKey = stringRedisTemplate.opsForValue().get(KEY + appId);
-        //是否有必要参数
-        authMessage.requireParameters(SimpleAuthValidator.SINGLE_PARAMETERS);
         //封装AuthConsumer
         AuthConsumer authConsumer = AuthConsumer.builder().key(appId).secret(publicKey).build();
         //封装redis防重类

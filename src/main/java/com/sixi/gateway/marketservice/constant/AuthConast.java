@@ -43,6 +43,10 @@ public class AuthConast {
      */
     public static final int RESP_CD_REFUSED_APP_ID = 10027;
 
+    /**
+     * 无效的方法路径
+     */
+    public static final int RESP_CD_INVALID_PATH = 10028;
 
     /**
      * 无效签名类型
@@ -69,6 +73,11 @@ public class AuthConast {
     public static final String RESP_MSG_INVALID_APP_ID = "不存在的APP_ID";
 
     public static final String RESP_MSG_REFUSED_APP_ID = "APP_ID已停止授权";
+
+    /**
+     * 无效的方法路径
+     */
+    public static final String RESP_MSG_INVALID_PATH = "无效的方法路径";
 
 
 }

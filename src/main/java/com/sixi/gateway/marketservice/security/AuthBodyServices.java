@@ -3,6 +3,7 @@ package com.sixi.gateway.marketservice.security;
 import com.sixi.gateway.checksigncommon.oauth.AuthMessage;
 import com.sixi.gateway.checksigncommon.oauth.exception.AuthProblemException;
 import com.sixi.gateway.checksigncommon.oauth.json.SingleJSON;
+import com.sixi.gateway.checksigncommon.oauth.method.impl.SimpleAuthValidator;
 import com.sixi.gateway.marketservice.constant.AuthConast;
 import com.sixi.gateway.marketservice.exception.ErrorCode;
 import com.sixi.gateway.marketservice.exception.ServerException;
@@ -63,7 +64,15 @@ public class AuthBodyServices {
         Object obj = SingleJSON.paser(str);
 
         if (obj instanceof Map) {
-            return new AuthMessage(((Map<String, ?>) obj).entrySet());
+            AuthMessage authMessage = new AuthMessage(((Map<String, ?>) obj).entrySet());
+            try {
+                //是否有必要参数
+                authMessage.requireParameters(SimpleAuthValidator.SINGLE_PARAMETERS);
+                return authMessage;
+            } catch (AuthProblemException e) {
+                ErrorCode errorCode = new ErrorCode(AuthConast.RESP_CD_MISSING_SIGNATURE_PARAM, AuthConast.RESP_MSG_MISSING_SIGNATURE_PARAM, "pls check your params!");
+                throw new ServerException(HttpStatus.BAD_REQUEST, errorCode);
+            }
         } else {
             ErrorCode errorCode = new ErrorCode(AuthConast.RESP_CD_MISSING_SIGNATURE_PARAM, AuthConast.RESP_MSG_MISSING_SIGNATURE_PARAM, "pls check your params!");
             throw new ServerException(HttpStatus.BAD_REQUEST, errorCode);
