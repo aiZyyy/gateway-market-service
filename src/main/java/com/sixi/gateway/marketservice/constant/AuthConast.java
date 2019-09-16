@@ -49,6 +49,11 @@ public class AuthConast {
     public static final int RESP_CD_INVALID_PATH = 10028;
 
     /**
+     * 无效的请求类型
+     */
+    public static final int RESP_CD_METHOS_TYPE = 10029;
+
+    /**
      * 无效签名类型
      */
     public static final String RESP_MSG_INVALID_SIGNATURE_TYPE = "无效的签名类型";
@@ -79,5 +84,8 @@ public class AuthConast {
      */
     public static final String RESP_MSG_INVALID_PATH = "无效的方法路径";
 
-
+    /**
+     * 无效的请求类型
+     */
+    public static final String RESP_MSG_METHOS_TYPE = "网关服务暂不支持GET请求";
 }

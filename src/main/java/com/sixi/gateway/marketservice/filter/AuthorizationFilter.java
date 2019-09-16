@@ -28,6 +28,8 @@ public class AuthorizationFilter implements GlobalFilter, Ordered {
 
     public final static String SIXI_SERVICE = "=============";
 
+    public final static String METHOD_VALUE = "GET";
+
 
     private final CheckSignServices checkSignServices;
 
@@ -45,6 +47,13 @@ public class AuthorizationFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         //获取request
         ServerHttpRequest serverHttpRequest = exchange.getRequest();
+        //获取请求方式
+        String methodValue = serverHttpRequest.getMethodValue();
+        //不支持GET请求
+        if (METHOD_VALUE.equals(methodValue)) {
+            ErrorCode errorCode = new ErrorCode(AuthConast.RESP_CD_METHOS_TYPE, AuthConast.RESP_MSG_METHOS_TYPE, "暂不支持GET请求");
+            throw new ServerException(HttpStatus.BAD_REQUEST, errorCode);
+        }
         //获取请求头信息
         HttpHeaders headers = serverHttpRequest.getHeaders();
         //有特定请求头直接调过验签

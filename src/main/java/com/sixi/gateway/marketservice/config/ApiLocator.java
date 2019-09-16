@@ -27,10 +27,20 @@ public class ApiLocator {
     @Bean
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
         RouteLocatorBuilder.Builder serviceProviders = builder.routes()
-                .route("Route", r -> r.path(SERVICE)
+                .route("PostRoute", r -> r.path(SERVICE)
                         .and()
                         .method(HttpMethod.POST)
                         .filters(r1 -> r1.
+                                modifyRequestBody(String.class, String.class, (ex, o) -> {
+                                    System.err.println(o.toUpperCase());
+                                    log.info(o);
+                                    return Mono.just(o);
+                                })).uri(URI)
+                        .order(0))
+                .route("GetRoute", r -> r.path(SERVICE)
+                        .and()
+                        .method(HttpMethod.GET)
+                        .filters(r2 -> r2.
                                 modifyRequestBody(String.class, String.class, (ex, o) -> {
                                     System.err.println(o.toUpperCase());
                                     log.info(o);
