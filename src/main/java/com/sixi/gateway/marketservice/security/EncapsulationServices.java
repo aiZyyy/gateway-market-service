@@ -21,9 +21,6 @@ import java.util.stream.Collectors;
  * @Description: 封装新消息
  */
 public class EncapsulationServices {
-
-
-
     /**
      * 转发新请求
      *

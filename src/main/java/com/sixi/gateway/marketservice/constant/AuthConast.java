@@ -87,5 +87,5 @@ public class AuthConast {
     /**
      * 无效的请求类型
      */
-    public static final String RESP_MSG_METHOS_TYPE = "网关服务暂不支持GET请求";
+    public static final String RESP_MSG_METHOS_TYPE = "网关服务不支持GET请求";
 }

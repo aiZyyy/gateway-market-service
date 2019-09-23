@@ -11,10 +11,12 @@ import com.sixi.gateway.marketservice.exception.ServerException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 
 import static com.sixi.gateway.checksigncommon.oauth.method.impl.SimpleAuthValidator.DEFAULT_TIMESTAMP_AGE;
+import static com.sixi.gateway.marketservice.filter.AuthorizationFilter.*;
 
 /**
  * @Author: ZY
@@ -27,6 +29,8 @@ public class CheckSignServices {
     static final String KEY = "MARKET:";
 
     static final String OAUTH_APP_ID_NAME = "app_id";
+
+    static final String SKIP_ROUTES = "skip_routes";
 
     protected final Log logger = LogFactory.getLog(getClass());
 
@@ -71,5 +75,29 @@ public class CheckSignServices {
         simpleAuthValidator.validateMessage(authMessage, authConsumer, stringRedisTemplate);
     }
 
+    /**
+     * 调过验签
+     *
+     * @param methodValue
+     * @param path
+     * @param headers
+     * @return
+     */
+    public boolean skipCheck(String methodValue, String path, HttpHeaders headers) {
+        //不支持GET请求
+        if (METHOD_VALUE.equals(methodValue)) {
+            ErrorCode errorCode = new ErrorCode(AuthConast.RESP_CD_METHOS_TYPE, AuthConast.RESP_MSG_METHOS_TYPE, "暂不支持GET请求");
+            throw new ServerException(HttpStatus.BAD_REQUEST, errorCode);
+        }
+        //如果为特定请求调过验签
+        if (stringRedisTemplate.opsForHash().hasKey(SKIP_ROUTES,path)) {
+            return true;
+        }
+        //有特定请求头直接调过验签
+        if (headers.containsKey(ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER) && headers.get(ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER).get(0).equals(SIXI_SERVICE)) {
+            return true;
+        }
+        return false;
+    }
 
 }
