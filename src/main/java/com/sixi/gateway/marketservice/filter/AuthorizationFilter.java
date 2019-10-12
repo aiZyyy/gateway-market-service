@@ -7,6 +7,7 @@ import com.sixi.gateway.marketservice.exception.ServerException;
 import com.sixi.gateway.marketservice.security.AuthBodyServices;
 import com.sixi.gateway.marketservice.security.CheckSignServices;
 import com.sixi.gateway.marketservice.security.EncapsulationServices;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -22,6 +23,7 @@ import reactor.core.publisher.Mono;
  * @Version 1.0
  * @Description: 全局过滤器
  */
+@Slf4j
 public class AuthorizationFilter implements GlobalFilter, Ordered {
 
     public final static String ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER = "ignoreGlobalFilter";
@@ -57,7 +59,8 @@ public class AuthorizationFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
         //获取消息体信息
-        AuthMessage authMessage = authBodyServices.getAuthBody(serverHttpRequest);
+        String body = authBodyServices.getAuthBody(serverHttpRequest);
+        AuthMessage authMessage = authBodyServices.readMessage(body);
         //验签
         ServerHttpRequest req = checkSignServices.doCheckSign(serverHttpRequest, authMessage);
         //获取请求类型
@@ -65,7 +68,7 @@ public class AuthorizationFilter implements GlobalFilter, Ordered {
         ServerWebExchange webExchange;
         try {
             //封装新的请求
-            ServerHttpRequest request = encapsulationServices.encapsulationRequest(req, contentType, authMessage);
+            ServerHttpRequest request = encapsulationServices.encapsulationRequest(req, contentType, authMessage, body);
             ServerHttpRequest build = request.mutate().header(ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER, SIXI_SERVICE).build();
             //封装新的exchange
             webExchange = exchange.mutate().request(build).build();

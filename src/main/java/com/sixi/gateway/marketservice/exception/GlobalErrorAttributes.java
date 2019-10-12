@@ -1,5 +1,6 @@
 package com.sixi.gateway.marketservice.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import java.util.Map;
  * @Version 1.0
  * @Description:
  */
+@Slf4j
 @Component
 public class GlobalErrorAttributes extends DefaultErrorAttributes {
 
@@ -34,11 +36,12 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
         if (error instanceof ServerException) {
             errorAttributes.put("code", ((ServerException) error).getCode().getCode());
             errorAttributes.put("data", error.getMessage());
-            errorAttributes.put("detailMessage",((ServerException) error).getDetailMessage());
+            errorAttributes.put("detailMessage", ((ServerException) error).getDetailMessage());
 
         } else {
             errorAttributes.put("code", HttpStatus.INTERNAL_SERVER_ERROR);
             errorAttributes.put("data", "GATEWAY ERROR");
+            log.debug("GATEWAY ERROR", error);
         }
         return errorAttributes;
     }
