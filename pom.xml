@@ -59,13 +59,6 @@
             <version>1.2.55</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.synchronoss.cloud/nio-multipart-parser -->
-        <dependency>
-            <groupId>org.synchronoss.cloud</groupId>
-            <artifactId>nio-multipart-parser</artifactId>
-            <version>1.1.0</version>
-        </dependency>
-
     </dependencies>
 
 </project>

@@ -6,9 +6,7 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
 
 /**
@@ -33,8 +31,9 @@ public class ApiLocator {
                         .and()
                         .method(HttpMethod.POST)
                         .filters(r1 -> r1.
-                                modifyRequestBody(Object.class, Object.class, (ex, o) -> {
-                                    log.info(o.toString());
+                                modifyRequestBody(String.class, String.class, (ex, o) -> {
+                                    System.err.println(o.toUpperCase());
+                                    log.info(o);
                                     return Mono.just(o);
                                 })).uri(URI)
                         .order(0))
@@ -43,6 +42,7 @@ public class ApiLocator {
                         .method(HttpMethod.GET)
                         .filters(r2 -> r2.
                                 modifyRequestBody(String.class, String.class, (ex, o) -> {
+                                    System.err.println(o.toUpperCase());
                                     log.info(o);
                                     return Mono.just(o);
                                 })).uri(URI)
