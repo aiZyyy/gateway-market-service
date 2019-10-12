@@ -23,10 +23,9 @@ public class ServiceConfig {
 
     @Bean
     @Order(1)
-    public AuthorizationFilter authorizationFilter(CheckSignServices checkSignServices, AuthBodyServices authBodyServices, EncapsulationServices encapsulationServices) {
-        return new AuthorizationFilter(checkSignServices, authBodyServices, encapsulationServices);
+    public AuthorizationFilter authorizationFilter(CheckSignServices checkSignServices, AuthBodyServices authBodyServices,EncapsulationServices encapsulationServices) {
+        return new AuthorizationFilter(checkSignServices, authBodyServices,encapsulationServices);
     }
-
 
     @Bean
     @Order(100)

@@ -29,25 +29,20 @@ public class EncapsulationServices {
      * @param authMessage
      * @return
      */
-    public ServerHttpRequest encapsulationRequest(ServerHttpRequest exchangeRequest, String contentType, AuthMessage authMessage) {
-        //获取请求参数
-        String biz_content = Arrays.stream(org.springframework.util.StringUtils.tokenizeToStringArray(authMessage.getParameter("biz_content"), "\n\t")).collect(Collectors.joining(""));
-        if (StringUtils.isEmpty(biz_content)) {
-            biz_content = " ";
-        }
+    public ServerHttpRequest encapsulationRequest(ServerHttpRequest exchangeRequest, String contentType, AuthMessage authMessage, String body) {
         //获取方法路径
         String newPath = "/" + Arrays.stream(org.springframework.util.StringUtils.tokenizeToStringArray(authMessage.getParameter("method"), "\\.")).collect(Collectors.joining("/"));
         //下面的将请求体再次封装写回到request里，传到下一级，否则，由于请求体已被消费，后续的服务将取不到值
         ServerHttpRequest request = exchangeRequest.mutate().path(newPath).build();
-        DataBuffer bodyDataBuffer = stringBuffer(biz_content);
+        //转换为对象
+        DataBuffer bodyDataBuffer = stringBuffer(body);
         Flux<DataBuffer> bodyFlux = Flux.just(bodyDataBuffer);
-
         // 定义新的消息头
         HttpHeaders headers = new HttpHeaders();
         headers.putAll(exchangeRequest.getHeaders());
 
         // 由于修改了传递参数，需要重新设置CONTENT_LENGTH，长度是字节长度，不是字符串长度
-        int length = biz_content.getBytes().length;
+        int length = body.getBytes().length;
         headers.remove(HttpHeaders.CONTENT_LENGTH);
         headers.setContentLength(length);
 
