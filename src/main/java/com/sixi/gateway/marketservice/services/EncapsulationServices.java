@@ -1,4 +1,4 @@
-package com.sixi.gateway.marketservice.security;
+package com.sixi.gateway.marketservice.services;
 
 import com.sixi.gateway.checksigncommon.oauth.AuthMessage;
 import io.netty.buffer.ByteBufAllocator;

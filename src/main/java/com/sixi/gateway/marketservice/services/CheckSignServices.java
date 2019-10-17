@@ -1,4 +1,4 @@
-package com.sixi.gateway.marketservice.security;
+package com.sixi.gateway.marketservice.services;
 
 import com.sixi.gateway.checksigncommon.oauth.AuthMessage;
 import com.sixi.gateway.checksigncommon.oauth.domain.AuthConsumer;
@@ -16,7 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 
 import static com.sixi.gateway.checksigncommon.oauth.method.impl.SimpleAuthValidator.DEFAULT_TIMESTAMP_AGE;
-import static com.sixi.gateway.marketservice.filter.AuthorizationFilter.*;
+import static com.sixi.gateway.marketservice.filter.AuthGatewayFilter.*;
 
 /**
  * @Author: ZY
@@ -90,11 +90,7 @@ public class CheckSignServices {
             throw new ServerException(HttpStatus.BAD_REQUEST, errorCode);
         }
         //如果为特定请求调过验签
-        if (stringRedisTemplate.opsForHash().hasKey(SKIP_ROUTES,path)) {
-            return true;
-        }
-        //有特定请求头直接调过验签
-        if (headers.containsKey(ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER) && headers.get(ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER).get(0).equals(SIXI_SERVICE)) {
+        if (stringRedisTemplate.opsForHash().hasKey(SKIP_ROUTES, path)) {
             return true;
         }
         return false;

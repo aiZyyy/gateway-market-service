@@ -4,16 +4,17 @@ import com.sixi.gateway.checksigncommon.oauth.AuthMessage;
 import com.sixi.gateway.marketservice.constant.AuthConast;
 import com.sixi.gateway.marketservice.exception.ErrorCode;
 import com.sixi.gateway.marketservice.exception.ServerException;
-import com.sixi.gateway.marketservice.security.AuthBodyServices;
-import com.sixi.gateway.marketservice.security.CheckSignServices;
-import com.sixi.gateway.marketservice.security.EncapsulationServices;
+import com.sixi.gateway.marketservice.services.AuthBodyServices;
+import com.sixi.gateway.marketservice.services.CheckSignServices;
+import com.sixi.gateway.marketservice.services.EncapsulationServices;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -24,11 +25,8 @@ import reactor.core.publisher.Mono;
  * @Description: 全局过滤器
  */
 @Slf4j
-public class AuthorizationFilter implements GlobalFilter, Ordered {
-
-    public final static String ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER = "ignoreGlobalFilter";
-
-    public final static String SIXI_SERVICE = "sixiignoreservice";
+@Component
+public class AuthGatewayFilter implements GatewayFilter, Ordered {
 
     public final static String METHOD_VALUE = "GET";
 
@@ -39,7 +37,7 @@ public class AuthorizationFilter implements GlobalFilter, Ordered {
 
     private final AuthBodyServices authBodyServices;
 
-    public AuthorizationFilter(CheckSignServices checkSignServices, AuthBodyServices authBodyServices, EncapsulationServices encapsulationServices) {
+    public AuthGatewayFilter(CheckSignServices checkSignServices, AuthBodyServices authBodyServices, EncapsulationServices encapsulationServices) {
         this.checkSignServices = checkSignServices;
         this.authBodyServices = authBodyServices;
         this.encapsulationServices = encapsulationServices;
@@ -69,9 +67,8 @@ public class AuthorizationFilter implements GlobalFilter, Ordered {
         try {
             //封装新的请求
             ServerHttpRequest request = encapsulationServices.encapsulationRequest(req, contentType, authMessage, body);
-            ServerHttpRequest build = request.mutate().header(ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER, SIXI_SERVICE).build();
             //封装新的exchange
-            webExchange = exchange.mutate().request(build).build();
+            webExchange = exchange.mutate().request(request).build();
             //转发新需求
             return chain.filter(webExchange);
         } catch (Exception e) {
