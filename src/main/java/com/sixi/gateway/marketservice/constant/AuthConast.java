@@ -54,6 +54,11 @@ public class AuthConast {
     public static final int RESP_CD_METHOS_TYPE = 10029;
 
     /**
+     * 无效的秘钥
+     */
+    public static final int CODE_NOT_OBTAINED_SECRET_KEY = 10030;
+
+    /**
      * 无效签名类型
      */
     public static final String RESP_MSG_INVALID_SIGNATURE_TYPE = "无效的签名类型";
@@ -88,4 +93,9 @@ public class AuthConast {
      * 无效的请求类型
      */
     public static final String RESP_MSG_METHOS_TYPE = "网关服务不支持GET请求";
+
+    /**
+     * 无效的请求类型
+     */
+    public static final String MSG_NOT_OBTAINED_SECRET_KEY = "未获取到秘钥";
 }

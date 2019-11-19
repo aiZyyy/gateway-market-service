@@ -1,10 +1,9 @@
 package com.sixi.gateway.marketservice.config;
 
-import com.sixi.gateway.marketservice.filter.AuthGatewayFilter;
-import com.sixi.gateway.marketservice.filter.CacheGatewayFilter;
-import com.sixi.gateway.marketservice.services.AuthBodyServices;
-import com.sixi.gateway.marketservice.services.CheckSignServices;
-import com.sixi.gateway.marketservice.services.EncapsulationServices;
+import com.sixi.gateway.marketservice.filter.AuthorizationFilter;
+import com.sixi.gateway.marketservice.security.AuthBodyServices;
+import com.sixi.gateway.marketservice.security.CheckSignServices;
+import com.sixi.gateway.marketservice.security.EncapsulationServices;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,16 +20,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 @EnableConfigurationProperties
 public class ServiceConfig {
 
-    @Bean
-    @Order(-100)
-    public CacheGatewayFilter cacheGatewayFilter() {
-        return new CacheGatewayFilter();
-    }
 
     @Bean
     @Order(1)
-    public AuthGatewayFilter authGatewayFilter(CheckSignServices checkSignServices, AuthBodyServices authBodyServices, EncapsulationServices encapsulationServices) {
-        return new AuthGatewayFilter(checkSignServices, authBodyServices, encapsulationServices);
+    public AuthorizationFilter authorizationFilter(CheckSignServices checkSignServices, AuthBodyServices authBodyServices,EncapsulationServices encapsulationServices) {
+        return new AuthorizationFilter(checkSignServices, authBodyServices,encapsulationServices);
     }
 
     @Bean
