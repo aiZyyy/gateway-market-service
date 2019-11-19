@@ -41,6 +41,7 @@ public class UnifiedRouteRepository implements RouteDefinitionRepository {
         return Flux.fromIterable(routeDefinitions);
     }
 
+
     @Override
     public Mono<Void> save(Mono<RouteDefinition> route) {
         return route.flatMap(r -> {
@@ -60,5 +61,4 @@ public class UnifiedRouteRepository implements RouteDefinitionRepository {
                     new NotFoundException("RouteDefinition not found: " + routeId)));
         });
     }
-
 }

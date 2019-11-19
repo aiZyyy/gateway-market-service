@@ -1,4 +1,4 @@
-package com.sixi.gateway.marketservice.security;
+package com.sixi.gateway.marketservice.services;
 
 import com.sixi.gateway.checksigncommon.oauth.AuthMessage;
 import com.sixi.gateway.checksigncommon.oauth.domain.AuthConsumer;
@@ -8,7 +8,6 @@ import com.sixi.gateway.checksigncommon.oauth.method.impl.SimpleAuthValidator;
 import com.sixi.gateway.marketservice.constant.AuthConast;
 import com.sixi.gateway.marketservice.exception.ErrorCode;
 import com.sixi.gateway.marketservice.exception.ServerException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -17,7 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 
 import static com.sixi.gateway.checksigncommon.oauth.method.impl.SimpleAuthValidator.DEFAULT_TIMESTAMP_AGE;
-import static com.sixi.gateway.marketservice.filter.AuthorizationFilter.*;
+import static com.sixi.gateway.marketservice.filter.AuthGatewayFilter.*;
 
 /**
  * @Author: ZY
@@ -66,10 +65,6 @@ public class CheckSignServices {
         String appId = authMessage.getParameter(OAUTH_APP_ID_NAME);
         //获取应用公钥
         String publicKey = stringRedisTemplate.opsForValue().get(KEY + appId);
-        if (StringUtils.isEmpty(publicKey)) {
-            ErrorCode errorCode = new ErrorCode(AuthConast.CODE_NOT_OBTAINED_SECRET_KEY, AuthConast.MSG_NOT_OBTAINED_SECRET_KEY, "为获取到秘钥信息");
-            throw new ServerException(HttpStatus.BAD_REQUEST, errorCode);
-        }
         //封装AuthConsumer
         AuthConsumer authConsumer = AuthConsumer.builder().key(appId).secret(publicKey).build();
         //封装redis防重类
@@ -96,10 +91,6 @@ public class CheckSignServices {
         }
         //如果为特定请求调过验签
         if (stringRedisTemplate.opsForHash().hasKey(SKIP_ROUTES, path)) {
-            return true;
-        }
-        //有特定请求头直接调过验签
-        if (headers.containsKey(ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER) && headers.get(ATTRIBUTE_IGNORE_TEST_GLOBAL_FILTER).get(0).equals(SIXI_SERVICE)) {
             return true;
         }
         return false;

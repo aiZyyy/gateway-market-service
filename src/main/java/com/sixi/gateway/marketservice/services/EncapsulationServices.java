@@ -1,4 +1,4 @@
-package com.sixi.gateway.marketservice.security;
+package com.sixi.gateway.marketservice.services;
 
 import com.sixi.gateway.checksigncommon.oauth.AuthMessage;
 import io.netty.buffer.ByteBufAllocator;
@@ -26,14 +26,12 @@ public class EncapsulationServices {
      *
      * @param exchangeRequest
      * @param contentType
-     * @param authMessage
      * @return
      */
-    public ServerHttpRequest encapsulationRequest(ServerHttpRequest exchangeRequest, String contentType, AuthMessage authMessage, String body) {
-        //获取方法路径
-        String newPath = "/" + Arrays.stream(org.springframework.util.StringUtils.tokenizeToStringArray(authMessage.getParameter("method"), "\\.")).collect(Collectors.joining("/"));
+    public ServerHttpRequest encapsulationRequest(ServerHttpRequest exchangeRequest, String contentType, String body) {
+
         //下面的将请求体再次封装写回到request里，传到下一级，否则，由于请求体已被消费，后续的服务将取不到值
-        ServerHttpRequest request = exchangeRequest.mutate().path(newPath).build();
+        ServerHttpRequest request = exchangeRequest.mutate().build();
         //转换为对象
         DataBuffer bodyDataBuffer = stringBuffer(body);
         Flux<DataBuffer> bodyFlux = Flux.just(bodyDataBuffer);
