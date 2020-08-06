@@ -1,6 +1,5 @@
 package com.sixi.gateway.marketservice.services;
 
-import com.sixi.gateway.checksigncommon.oauth.AuthMessage;
 import io.netty.buffer.ByteBufAllocator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -11,8 +10,6 @@ import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import reactor.core.publisher.Flux;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 /**
  * @Author: ZY
